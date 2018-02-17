@@ -160,7 +160,7 @@ class PhpTokensIterator extends TokenIterator
 
 	public static function typeRefToken(string $value, int $line, string $resolvedType): array
 	{
-		$isNative = array_key_exists($resolvedType, PhpParser::$ignoreTypes);
+		$isNative = PhpParser::isBuildInType($resolvedType);
 
 		return [
 			self::VALUE => $value,

@@ -7,7 +7,7 @@ use PHPStanCompiler\Parser\String\PhpStringTokenizer;
 class PhpParser
 {
 
-	public static $ignoreTypes = [
+	private static $ignoreTypes = [
 		'parent' => true,
 		'self' => true,
 		'static' => true,
@@ -248,12 +248,12 @@ class PhpParser
 
 	private function guessIfTypeExists(string $type): bool
 	{
-		return $this->isBuildInType($type) || call_user_func($this->typeChecker, $type);
+		return self::isBuildInType($type) || call_user_func($this->typeChecker, $type);
 	}
 
 	private function typeResolve(string $type): string
 	{
-		if ($this->isBuildInType($type)) {
+		if (self::isBuildInType($type)) {
 			return $type;
 		}
 
@@ -269,9 +269,9 @@ class PhpParser
 		return '\\' . ltrim($full, '\\');
 	}
 
-	private function isBuildInType(string $type): bool
+	public static function isBuildInType(string $type): bool
 	{
-		return array_key_exists($type, self::$ignoreTypes);
+		return array_key_exists(ltrim($type, '?'), self::$ignoreTypes);
 	}
 
 }

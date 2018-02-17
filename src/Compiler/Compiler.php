@@ -28,10 +28,6 @@ class Compiler
 		'phpstan/phpstan-doctrine' => [
 			'Doctrine\\',
 		],
-		'phpstan/phpstan-guzzle' => [
-			'GuzzleHttp\\',
-			'Psr\\Http\\',
-		],
 		'phpstan/phpstan-nette' => [
 			'Nette\\',
 			'Tracy\\',
@@ -39,6 +35,13 @@ class Compiler
 		],
 		'phpstan/phpstan-dibi' => [
 			'Dibi\\',
+		],
+		'phpstan/phpstan-phpunit' => [
+			'PHPStan\Rules\\',
+			'PHPStan\Type\\',
+		],
+		'phpstan/phpstan-strict-rules' => [
+			'PHPStan\Rules\\',
 		],
 	];
 
@@ -135,7 +138,12 @@ class Compiler
 		// install extensions and do a cleanup
 		$this->out->write($composer->exec('require --no-update', ...self::$buildTools));
 		if ($noExtensions === false) {
-			$this->out->write($composer->exec('require --no-update', ...array_keys(self::$extensions)));
+			foreach (array_keys(self::$extensions) as $fullName) {
+				$shortName = explode('/', $fullName)[1];
+				$this->out->write($composer->exec('config repositories.' . $fullName . ' vcs https://github.com/Majkl578/' . $shortName));
+			}
+
+			$this->out->write($composer->exec('require --no-update', ...array_map(function (string $name): string { return $name . ':dev-indirect-deps'; }, array_keys(self::$extensions))));
 		}
 		$this->out->write($composer->exec('update --no-dev --no-suggest --optimize-autoloader --classmap-authoritative'));
 
